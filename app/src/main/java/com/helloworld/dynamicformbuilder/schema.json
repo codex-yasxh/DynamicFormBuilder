@@ -1,0 +1,115 @@
+{
+  "Screen": {
+    "description": "Fill this application form to get better updates regarding hackathons, events and contests",
+    "title": "Unstop Application form",
+    "submit": {
+      "endpoint": "/apply/unstop",
+      "method": "POST"
+    }
+  },
+  "fields": [
+    {
+      "id": "first_name",
+      "label": "First Name",
+      "required": true,
+      "type": "text"
+    },
+    {
+      "id": "last_name",
+      "label": "Last Name",
+      "required": true,
+      "type": "text"
+    },
+    {
+      "id": "gender",
+      "label": "Gender",
+      "required": true,
+      "type": "radio"
+    },
+    {
+      "id": "email",
+      "label": "Email",
+      "required": true,
+      "type": "email"
+    },
+    {
+      "id": "phone_number",
+      "label": "Enter phone number",
+      "required": true,
+      "type": "number"
+    },
+    {
+      "id": "dob",
+      "label": "Date of Birth",
+      "required": true,
+      "type": "date",
+      "validations": {
+        "errorMessage": "Age should be greater than 18",
+        "rule": "min_age",
+        "value": 18
+      }
+    },
+    {
+      "default": false,
+      "id": "are_you_employed",
+      "label": "Are you employed",
+      "required": true,
+      "type": "boolean"
+    },
+    {
+      "id": "job_title",
+      "label": "Job Title",
+      "options": [
+        "Intern",
+        "SDE",
+        "Designer",
+        "Manager"
+      ],
+      "type": "dropdown",
+      "visibility": {
+        "condition": "equals",
+        "dependsOn": "are_you_employed",
+        "value": true
+      }
+    },
+    {
+      "id": "skills",
+      "label": "Skills (Optional)",
+      "required": false,
+      "type": "text"
+    },
+    {
+      "id": "company_name",
+      "label": "Company Name",
+      "type": "text",
+      "visibility": {
+        "condition": "equals",
+        "dependsOn": "are_you_employed",
+        "value": true
+      }
+    },
+    {
+      "id": "experience",
+      "label": "Experience",
+      "options": [
+        "0 years",
+        "1 year",
+        "2 years",
+        "3 years",
+        "4 years",
+        "5 years",
+        "6 years",
+        "7 years",
+        "8 years",
+        "9 years",
+        "10+ years"
+      ],
+      "type": "dropdown",
+      "visibility": {
+        "condition": "equals",
+        "dependsOn": "are_you_employed",
+        "value": true
+      }
+    }
+  ]
+}
