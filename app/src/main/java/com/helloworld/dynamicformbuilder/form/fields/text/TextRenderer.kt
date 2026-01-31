@@ -14,7 +14,6 @@ import com.helloworld.dynamicformbuilder.form.state.FieldState
 
 class TextRenderer : FieldRenderer{
     @Composable
-    @Composable
     override fun Render(field: FieldSchema, state: FieldState, onValueChange: (Any?) -> Unit) {
         Text(field.label)
 
