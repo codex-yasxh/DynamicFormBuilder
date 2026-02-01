@@ -1,5 +1,6 @@
 package com.helloworld.dynamicformbuilder.form.screens
 
+import android.util.Log
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.isTraceInProgress
@@ -115,6 +116,7 @@ fun FieldItem(
     registry: FieldRegistry,
     onValueChange : (Any?) -> Unit
 ){
+    Log.d("RECOMPOSE", "FieldItem recomposed: ${field.id}")
     val renderer = registry.getRenderer(field.type) ?: return
 
     renderer.Render(
@@ -123,5 +125,11 @@ fun FieldItem(
         onValueChange = onValueChange
     )
 }
+
+@Composable
+fun StaticHeader(...) {
+    Log.d("RECOMPOSE", "Header recomposed")
+}
+
 
 
