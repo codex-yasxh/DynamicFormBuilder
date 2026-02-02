@@ -19,12 +19,7 @@ object sampleFixtures {
                 label = "First Name",
                 required = true,
             ),
-            FieldSchema(
-                id = "last_name",
-                type = "text",
-                label = "Last Name",
-                required = true
-            )
+
         )
     )
 }
