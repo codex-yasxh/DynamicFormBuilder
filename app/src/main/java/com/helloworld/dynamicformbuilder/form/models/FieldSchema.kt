@@ -1,5 +1,7 @@
 package com.helloworld.dynamicformbuilder.form.models
 
+import com.helloworld.dynamicformbuilder.form.validation.validationRule
+
 data class FieldSchema(
     val id : String,
     val type : String,
@@ -7,6 +9,7 @@ data class FieldSchema(
     val required: Boolean = false,
     val options: List<String>? = null,
     val visibility: VisibilityRule? = null,
-    val validations: ValidationRule? = null,
+//    val validations: ValidationRule? = null, old code
+    val validations : List<ValidationRule>? = null
 
 )

@@ -1,6 +1,7 @@
 package com.helloworld.dynamicformbuilder.form.screens
 
 import android.util.Log
+import androidx.compose.material3.Button
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +21,7 @@ import com.helloworld.dynamicformbuilder.form.models.RootSchema
 import com.helloworld.dynamicformbuilder.form.preview.sampleFixtures
 import com.helloworld.dynamicformbuilder.form.state.FieldState
 import com.helloworld.dynamicformbuilder.form.state.FormState
+import com.helloworld.dynamicformbuilder.form.validation.validateField
 //import java.lang.reflect.Field
 import kotlin.collections.plus
 import kotlin.text.get
@@ -141,9 +143,33 @@ fun DynamicFormScreen(
         }
     }
 
+    fun validateOnSubmit(){
+        var updateFields = formState.fields
 
+        rootSchema.fields.forEach { fieldSchema ->
+            val fieldState = formState.fields[fieldSchema.id] ?: return@forEach
 
+            val error = validateField(
+                fieldSchema = fieldSchema,
+                fieldState = fieldState,
+                formState = formState
+            )
+            val updateFieldState = fieldState.copy(
+                error = error,
+                isTouched = true
+            )
+            updateFields = updateFields + (fieldSchema.id to updateFieldState)
+        }
 
+        formState = formState.copy(fields = updateFields)
+
+    }
+
+    Button(
+        onClick = { validateOnSubmit() }
+    ) {
+        Text("Submit")
+    }
 
 }
 //4.4 only recomposing the specific affected field
