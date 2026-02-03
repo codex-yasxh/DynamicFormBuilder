@@ -19,6 +19,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -31,6 +33,7 @@ import com.helloworld.dynamicformbuilder.form.state.FieldState
 import com.helloworld.dynamicformbuilder.form.state.FormState
 import com.helloworld.dynamicformbuilder.form.submission.SubmissionState
 import com.helloworld.dynamicformbuilder.form.validation.validateField
+import kotlinx.coroutines.delay
 //import java.lang.reflect.Field
 import kotlin.collections.plus
 import kotlin.text.get
@@ -238,18 +241,51 @@ fun DynamicFormScreen(
     }
 
     //used only when submissionState changes
+    LaunchedEffect(submissionState) {
+        if (submissionState is SubmissionState.Submitting) {
 
-    LaunchedEffect(submissionState){
-
-        if(submissionState is SubmissionState.Submitting){
             val hasErrors = runValidation()
-
-            if(hasErrors){
+            if (hasErrors) {
                 submissionState = SubmissionState.Idle
+                return@LaunchedEffect
             }
-            // else stay in submitting state
+
+            // Validation passed → build payload
+            val payload = buildSubmitPayload(rootSchema, formState)
+            Log.d("PAYLOAD", payload.toString())
+
+            // Fake API call
+            val result = fakeSubmitApi(payload)
+
+            submissionState = if (result.isSuccess) {
+                SubmissionState.Success
+            } else {
+                SubmissionState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
+            }
         }
     }
+
+    when (submissionState) {
+        SubmissionState.Success -> {
+            Text("Form submitted successfully!")
+        }
+
+        is SubmissionState.Error -> {
+            Box(
+                modifier = Modifier.padding(32.dp,32.dp),
+                contentAlignment = Alignment.Center
+            ){
+                Text(
+                    text = (submissionState as SubmissionState.Error).message,
+                    color = Color.Red,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+        else -> Unit
+    }
+
+
 
 }
 //4.4 only recomposing the specific affected field
@@ -293,6 +329,16 @@ fun buildSubmitPayload(
     }
 
     return payload
+}
+
+suspend fun fakeSubmitApi(payload: Map<String, Any?>): Result<Unit> {
+    delay(1500) // simulate network delay
+
+    return if (payload.isNotEmpty()) {
+        Result.success(Unit)
+    } else {
+        Result.failure(Exception("Submission failed"))
+    }
 }
 
 
