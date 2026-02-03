@@ -25,6 +25,16 @@ object sampleFixtures {
                         type = ValidationType.REQUIRED,
                         message = "First name is required",
                         value = true
+                    ),
+                    ValidationRule(
+                        type = ValidationType.MIN_LENGTH,
+                        value = 3,
+                        message = "Minimum 3 characters"
+                    ),
+                    ValidationRule(
+                        type = ValidationType.REGEX,
+                        value = "^[a-zA-Z0-9_]+$",
+                        message = "Only letters, numbers, underscore allowed"
                     )
                 ),
 
