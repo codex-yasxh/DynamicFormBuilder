@@ -1,7 +1,7 @@
 package com.helloworld.dynamicformbuilder.form.validation
 
-data class validationRule(
+data class ValidationRule(
     val type : ValidationType,
-    val value : Any? = null,
+    val value : Any,
     val message : String
 )

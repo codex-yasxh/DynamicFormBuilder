@@ -1,6 +1,6 @@
 package com.helloworld.dynamicformbuilder.form.models
 
-import com.helloworld.dynamicformbuilder.form.validation.validationRule
+import com.helloworld.dynamicformbuilder.form.validation.ValidationRule
 
 data class FieldSchema(
     val id : String,
