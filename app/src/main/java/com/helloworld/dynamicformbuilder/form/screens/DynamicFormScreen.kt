@@ -9,6 +9,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 //import androidx.compose.runtime.isTraceInProgress
@@ -28,6 +29,7 @@ import com.helloworld.dynamicformbuilder.form.models.RootSchema
 import com.helloworld.dynamicformbuilder.form.preview.sampleFixtures
 import com.helloworld.dynamicformbuilder.form.state.FieldState
 import com.helloworld.dynamicformbuilder.form.state.FormState
+import com.helloworld.dynamicformbuilder.form.submission.SubmissionState
 import com.helloworld.dynamicformbuilder.form.validation.validateField
 //import java.lang.reflect.Field
 import kotlin.collections.plus
@@ -61,6 +63,11 @@ fun DynamicFormScreen(
             )
         )
     }
+
+    var submissionState by remember {
+        mutableStateOf<SubmissionState>(SubmissionState.Idle)
+    }
+
 
     @Composable
     fun StaticHeader(
@@ -185,13 +192,61 @@ fun DynamicFormScreen(
             .padding(64.dp)
     ){
         Button(
-            onClick = { validateOnSubmit() },
-
+            onClick = {
+                if(submissionState is SubmissionState.Idle){
+                    submissionState = SubmissionState.Submitting
+                    Log.d("SUBMISSION", "State changed to Submitting")
+                }
+            },
+               enabled = submissionState is SubmissionState.Idle
             ) {
             Text("Submit")
+
         }
     }
 
+    fun runValidation(): Boolean {
+        var updatedFields = formState.fields
+        var hasError = false
+
+        rootSchema.fields.forEach { fieldSchema ->
+            val fieldState = formState.fields[fieldSchema.id] ?: return@forEach
+
+            val error = validateField(
+                fieldSchema = fieldSchema,
+                fieldState = fieldState,
+                formState = formState
+            )
+
+            if (error != null) {
+                hasError = true
+            }
+
+            updatedFields = updatedFields + (
+                    fieldSchema.id to fieldState.copy(
+                        error = error,
+                        isTouched = true
+                    )
+                    )
+        }
+
+        formState = formState.copy(fields = updatedFields)
+        return hasError
+    }
+
+    //used only when submissionState changes
+
+    LaunchedEffect(submissionState){
+
+        if(submissionState is SubmissionState.Submitting){
+            val hasErrors = runValidation()
+
+            if(hasErrors){
+                submissionState = SubmissionState.Idle
+            }
+            // else stay in submitting state
+        }
+    }
 
 }
 //4.4 only recomposing the specific affected field
@@ -211,6 +266,8 @@ fun FieldItem(
         onValueChange = onValueChange
     )
 }
+
+
 
 
 
