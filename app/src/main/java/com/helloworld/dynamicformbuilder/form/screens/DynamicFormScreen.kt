@@ -196,6 +196,9 @@ fun DynamicFormScreen(
                 if(submissionState is SubmissionState.Idle){
                     submissionState = SubmissionState.Submitting
                     Log.d("SUBMISSION", "State changed to Submitting")
+                    val payload = buildSubmitPayload(rootSchema, formState)
+                    Log.d("PAYLOAD", payload.toString())
+
                 }
             },
                enabled = submissionState is SubmissionState.Idle
@@ -268,6 +271,29 @@ fun FieldItem(
 }
 
 
+fun buildSubmitPayload(
+    rootSchema: RootSchema,
+    formState: FormState
+): Map<String, Any?> {
+
+    val payload = mutableMapOf<String, Any?>()
+
+    rootSchema.fields.forEach { fieldSchema ->
+        val fieldState = formState.fields[fieldSchema.id] ?: return@forEach
+
+        val value = when (fieldSchema.type) {
+            "text" -> fieldState.value as? String
+            "number" -> fieldState.value as? Int
+            "boolean" -> fieldState.value as? Boolean
+            "date" -> fieldState.value?.toString() // later format properly
+            else -> fieldState.value
+        }
+
+        payload[fieldSchema.id] = value
+    }
+
+    return payload
+}
 
 
 
