@@ -33,6 +33,7 @@ import com.helloworld.dynamicformbuilder.form.state.FieldState
 import com.helloworld.dynamicformbuilder.form.state.FormState
 import com.helloworld.dynamicformbuilder.form.submission.SubmissionState
 import com.helloworld.dynamicformbuilder.form.validation.validateField
+import com.helloworld.dynamicformbuilder.form.visibility.isFieldVisible
 import kotlinx.coroutines.delay
 //import java.lang.reflect.Field
 import kotlin.collections.plus
@@ -84,7 +85,9 @@ fun DynamicFormScreen(
     StaticHeader()
 
     //looping thru all the fields
-    rootSchema.fields.forEach { field ->
+    rootSchema.fields.filter { field ->
+        isFieldVisible(field, formState)
+    }.forEach { field ->
 
 
         // hey getRenderer help me find the exact renderer for this field
@@ -216,24 +219,31 @@ fun DynamicFormScreen(
         var hasError = false
 
         rootSchema.fields.forEach { fieldSchema ->
-            val fieldState = formState.fields[fieldSchema.id] ?: return@forEach
 
+            val fieldState = formState.fields[fieldSchema.id] ?: return@forEach
+            val isVisible = isFieldVisible(fieldSchema, formState)
+
+
+            if(!isVisible){
+                updatedFields = updatedFields + (
+                        fieldSchema.id to fieldState.copy(error = null)
+               )
+                return@forEach
+            }
+            //if field is visible then we need to handle errors as well
             val error = validateField(
                 fieldSchema = fieldSchema,
                 fieldState = fieldState,
                 formState = formState
             )
 
-            if (error != null) {
-                hasError = true
-            }
-
             updatedFields = updatedFields + (
                     fieldSchema.id to fieldState.copy(
                         error = error,
                         isTouched = true
                     )
-                    )
+            )
+            if (error != null) hasError = true
         }
 
         formState = formState.copy(fields = updatedFields)
@@ -287,6 +297,8 @@ fun DynamicFormScreen(
 
 
 
+
+
 }
 //4.4 only recomposing the specific affected field
 @Composable
@@ -315,6 +327,9 @@ fun buildSubmitPayload(
     val payload = mutableMapOf<String, Any?>()
 
     rootSchema.fields.forEach { fieldSchema ->
+        if (!isFieldVisible(fieldSchema, formState)) {
+            return@forEach
+        }
         val fieldState = formState.fields[fieldSchema.id] ?: return@forEach
 
         val value = when (fieldSchema.type) {
