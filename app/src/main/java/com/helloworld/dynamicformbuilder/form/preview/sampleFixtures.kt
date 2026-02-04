@@ -5,6 +5,8 @@ import com.helloworld.dynamicformbuilder.form.models.RootSchema
 import com.helloworld.dynamicformbuilder.form.models.ScreenSchema
 import com.helloworld.dynamicformbuilder.form.validation.ValidationRule
 import com.helloworld.dynamicformbuilder.form.validation.ValidationType
+import com.helloworld.dynamicformbuilder.form.visibility.VisibilityCondition
+import com.helloworld.dynamicformbuilder.form.visibility.VisibilityRule
 
 object sampleFixtures {
 
@@ -37,8 +39,17 @@ object sampleFixtures {
                         message = "Only letters, numbers, underscore allowed"
                     )
                 ),
-
-            )
+            ),
+            FieldSchema(
+                id = "company_name",
+                type = "text",
+                label = "Company Name",
+                visibility = VisibilityRule(
+                    dependsOn = "are_you_employed",
+                    condition = VisibilityCondition.EQUALS,
+                    value = true
+                )
+            ),
         )
     )
 }
